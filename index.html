@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convocação para a Aventura RPG 🎲</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121214;
+      color: #e1e1e6;
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #996dff;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .card {
+      background: #202024;
+      border: 1px solid #29292e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    label.titulo-pergunta {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #00b37e;
+    }
+    .opcoes-rpg {
+      display: flex;
+      gap: 20px;
+    }
+    .opcao-radio {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .dia-horario-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .dia-horario-row label {
+      min-width: 110px;
+      cursor: pointer;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px;
+      background: #121214;
+      border: 1px solid #323238;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.95rem;
+    }
+    input[type="text"]:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .grupo-duplo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    button.btn-enviar {
+      width: 100%;
+      background: #00875f;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.btn-enviar:hover {
+      background: #00b37e;
+    }
+    .oculto {
+      display: none !important;
+    }
+    /* Estilos da mensagem fofa e tela de desligamento */
+    .mensagem-carinho {
+      background: #2a1b24;
+      border: 1px solid #e83f5b;
+      padding: 25px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .mensagem-carinho h2 {
+      color: #ff79c6;
+      margin-top: 0;
+    }
+    .contador {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #e83f5b;
+      margin-top: 15px;
+    }
+    /* Overlay simulando tela preta de desligamento */
+    #overlayShutdown {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Formularário de RPG de Mesa</h1>
+
+  <div class="card">
+    <label class="titulo-pergunta">1) Você quer jogar RPG de mesa com a gente?</label>
+    <div class="opcoes-rpg">
+      <label class="opcao-radio">
+        <input type="radio" name="querJogar" value="sim"> Sim, bora! 🔥
+      </label>
+      <label class="opcao-radio">
+        <input type="radio" name="querJogar" value="nao"> Não posso / Não quero 😢
+      </label>
+    </div>
+  </div>
+
+  <div id="secaoCarinho" class="card mensagem-carinho oculto">
+    <h2>Poxa, que pena! 💔</h2>
+    <p>Muito obrigado por avisar! Você fará muita falta na nossa mesa, mas respeitamos sua decisão. Que seu caminho seja repleto de bons momentos! ✨</p>
+    <p>Desligando seu sistema em:</p>
+    <div id="contadorTempo" class="contador">5</div>
+  </div>
+
+  <form id="formRpg" class="oculto">
+    
+    <div class="card">
+      <label for="nomeJogador" class="titulo-pergunta">Seu Nome / Nickname:</label>
+      <input type="text" id="nomeJogador" required placeholder="Digite como quer ser chamado(a)">
+    </div>
+
+    <div class="card">
+      <label class="titulo-pergunta">2) Qais dias e horários você tem disponibilidade?</label>
+      <p style="font-size: 0.85rem; color: #a8a8b3; margin-top: -8px;">Marque os dias e digite os horários disponíveis (ex: 19h às 22h, Qualquer horário, etc.):</p>
+
+      <div id="diasSemanaContainer">
+        </div>
+    </div>
+
+    <div class="card">
+      <label class="titulo-pergunta">3) Qual classe e raça você deseja jogar?</label>
+      <div class="grupo-duplo">
+        <div>
+          <label for="raca">Raça:</label>
+          <input type="text" id="raca" placeholder="Ex: Elfo, Anão, Humano..." required>
+        </div>
+        <div>
+          <label for="classe">Classe:</label>
+          <input type="text" id="classe" placeholder="Ex: Mago, Guerreiro, Ladino..." required>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-enviar">Enviar Respostas e Salvar na Mesa 🚀</button>
+  </form>
+
+  <p id="statusEnvio" style="text-align: center; font-weight: bold; margin-top: 15px;"></p>
+
+  <div id="overlayShutdown" class="oculto">
+    <h2>Desligando... 😴</h2>
+    <p>Até a próxima!</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // 🔴 SUBSTÍTUAS PELAS SUAS CHAVES DO FIREBASE CONSOLE
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Renderizar dias da semana dinamicamente
+    const dias = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
+    const containerDias = document.getElementById('diasSemanaContainer');
+
+    dias.forEach((dia, index) => {
+      const row = document.createElement('div');
+      row.className = 'dia-horario-row';
+      row.innerHTML = `
+        <label>
+          <input type="checkbox" class="chk-dia" data-dia="${dia}"> ${dia}
+        </label>
+        <input type="text" class="txt-horario" id="horario-${index}" placeholder="Horários disponíveis" disabled>
+      `;
+      containerDias.appendChild(row);
+    });
+
+    // Habilitar/desabilitar campo de horário ao marcar o checkbox
+    document.querySelectorAll('.chk-dia').forEach((chk, idx) => {
+      chk.addEventListener('change', (e) => {
+        const inputHorario = document.getElementById(`horario-${idx}`);
+        inputHorario.disabled = !e.target.checked;
+        if (!e.target.checked) inputHorario.value = '';
+      });
+    });
+
+    // Lógica da Pergunta 1 (Sim / Não)
+    const radiosQuerJogar = document.querySelectorAll('input[name="querJogar"]');
+    const formRpg = document.getElementById('formRpg');
+    const secaoCarinho = document.getElementById('secaoCarinho');
+    const contadorTempo = document.getElementById('contadorTempo');
+    const overlayShutdown = document.getElementById('overlayShutdown');
+
+    radiosQuerJogar.forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        if (e.target.value === 'sim') {
+          secaoCarinho.classList.add('oculto');
+          formRpg.classList.remove('oculto');
+        } else if (e.target.value === 'nao') {
+          formRpg.classList.add('oculto');
+          secaoCarinho.classList.remove('oculto');
+          iniciarContagemRegressiva();
+        }
+      });
+    });
+
+    // Função de contagem regressiva e simulação de desligamento
+    function iniciarContagemRegressiva() {
+      let tempoRestante = 5;
+      contadorTempo.textContent = tempoRestante;
+
+      const intervalo = setInterval(() => {
+        tempoRestante--;
+        contadorTempo.textContent = tempoRestante;
+
+        if (tempoRestante <= 0) {
+          clearInterval(intervalo);
+          // Mostra a tela preta de desligando
+          overlayShutdown.classList.remove('oculto');
+          
+          // Tenta fechar a aba após 1.5s (funciona se a janela foi aberta via JS)
+          setTimeout(() => {
+            window.close();
+          }, 1500);
+        }
+      }, 1000);
+    }
+
+    // Envio do Formulário para o Firebase
+    formRpg.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const status = document.getElementById('statusEnvio');
+      const nome = document.getElementById('nomeJogador').value;
+      const raca = document.getElementById('raca').value;
+      const classe = document.getElementById('classe').value;
+
+      // Coletar dias e horários marcados
+      const disponibilidades = [];
+      document.querySelectorAll('.chk-dia').forEach((chk, idx) => {
+        if (chk.checked) {
+          const dia = chk.getAttribute('data-dia');
+          const horario = document.getElementById(`horario-${idx}`).value || 'Sem horário especificado';
+          disponibilidades.push({ dia, horario });
+        }
+      });
+
+      if (disponibilidades.length === 0) {
+        alert("Por favor, selecione pelo menos um dia e horário de disponibilidade!");
+        return;
+      }
+
+      status.style.color = "#00b37e";
+      status.textContent = "Salvando ficha da aventura...";
+
+      try {
+        await push(ref(database, 'jogadores_rpg'), {
+          nome: nome,
+          querJogar: "Sim",
+          raca: raca,
+          classe: classe,
+          disponibilidade: disponibilidades,
+          dataRegistro: new Date().toISOString()
+        });
+
+        status.style.color = "#00b37e";
+        status.textContent = "✅ Resposta salva com sucesso! Prepare seus dados! 🎲";
+        formRpg.reset();
+        
+        // Reseta os campos desabilitados de horários
+        document.querySelectorAll('.txt-horario').forEach(input => input.disabled = true);
+      } catch (error) {
+        console.error("Erro ao salvar no Firebase:", error);
+        status.style.color = "#e83f5b";
+        status.textContent = "Erro ao enviar respostas. Verifique as configurações do Firebase.";
+      }
+    });
+  </script>
+</body>
+</html>
